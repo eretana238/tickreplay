@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createChart, CandlestickSeries, HistogramSeries } from 'lightweight-charts';
 import type { ISeriesApi, IChartApi, UTCTimestamp } from 'lightweight-charts';
-import type { OHLCV } from '../models/OHLCV';
+import type { OHLCV } from '../trade/types';
 
 interface TradingviewChartProps {
   data: OHLCV[];
@@ -50,40 +50,11 @@ const TradingviewChart: React.FC<TradingviewChartProps> = ({ data }) => {
     });
     seriesRef.current = candleSeries;
 
-    // Filter out invalid timestamps and sort by time ascending
-    const UTCTime = (ts: string): UTCTimestamp => {
-      // Convert UTC timestamp to America/Chicago time (Central)
-      const date = new Date(ts);
-      const dtf = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/Chicago',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      });
-      const parts = dtf.formatToParts(date).reduce<Record<string, string>>((acc, part) => {
-        if (part.type !== 'literal') {
-          acc[part.type] = part.value;
-        }
-        return acc;
-      }, {});
-      const year = parts.year!;
-      const month = parts.month!;
-      const day = parts.day!;
-      const hour = parts.hour!;
-      const minute = parts.minute!;
-      const second = parts.second!;
-      // Build an ISO string for the central time and parse as UTC
-      const centralDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`);
-      return (centralDate.getTime() / 1000) as UTCTimestamp;
-    };
+    
 
     const chartData = data
       .map((item) => ({
-        time: UTCTime(item.hd.ts_event),
+        time: item.timestamp as UTCTimestamp,
         open:  Number(item.open),
         high:  Number(item.high),
         low:   Number(item.low),

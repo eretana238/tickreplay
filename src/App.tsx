@@ -63,6 +63,8 @@ function App() {
             }
           } catch {
             // Ignore malformed lines
+            console.warn('Malformed line in OHLCV data:', line);
+            continue;
           }
         }
         if (changed) {
@@ -74,8 +76,31 @@ function App() {
     fetchData();
   }, []);
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <CandlestickChartWidget data={data} candleWidth={10} />
+    <div className="flex flex-col h-screen w-screen bg-gray-900 text-white">
+      {/* Top Bar */}
+      <header className="h-12 flex items-center px-4 bg-gray-800 border-b border-gray-700">
+        <h1 className="text-lg font-bold">Backtest Trading App</h1>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 min-h-0">
+        {/* Chart Area */}
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1">
+            <CandlestickChartWidget data={data} candleWidth={10} />
+          </div>
+          {/* Trade History Section */}
+          <div className="h-40 bg-gray-800 border-t border-gray-700 overflow-y-auto p-4">
+            <h2 className="text-md font-semibold mb-2">Trade History</h2>
+            <div className="text-gray-400">No trades yet.</div>
+          </div>
+        </div>
+        {/* Right Side Buy/Sell Buttons */}
+        <div className="w-32 flex flex-col items-center justify-center bg-gray-800 border-l border-gray-700 p-4">
+          <button className="w-full mb-4 py-2 rounded bg-green-600 hover:bg-green-700 font-bold">Buy</button>
+          <button className="w-full py-2 rounded bg-red-600 hover:bg-red-700 font-bold">Sell</button>
+        </div>
+      </div>
     </div>
   );
 }
